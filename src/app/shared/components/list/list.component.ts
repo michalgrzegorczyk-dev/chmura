@@ -36,7 +36,7 @@ export class ListComponent {
   @Output()
   readonly onLoadMore = new EventEmitter<void>();
 
-  private scrollIndex = signal(0);
+  private readonly scrollIndex = signal(0);
   private readonly scrollIndexOffset = 20;
 
   scroll(index: number): void {
