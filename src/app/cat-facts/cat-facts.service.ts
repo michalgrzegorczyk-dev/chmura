@@ -1,5 +1,5 @@
 import {Injectable, inject, signal, OnDestroy} from '@angular/core';
-import {map, finalize} from 'rxjs/operators';
+import {map, finalize, takeUntil} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {CatFacts} from "./cat-facts.model";
 import {forkJoin, Observable, Subject} from "rxjs";
@@ -30,12 +30,11 @@ export class CatFactsService implements OnDestroy {
     const requests = Array.from({length: amount}, () => this.loadRandomCatFact());
 
     // ??
-    forkJoin(requests)
-      .pipe(finalize(() => this.loading.set(false)))
+    forkJoin(requests).pipe(finalize(() => this.loading.set(false)), takeUntil(this.destroy$))
       .subscribe((results) => {
-      const uniqueFacts = new Set([...this.catFacts(), ...results.filter(fact => fact !== null)]);
-      this.catFacts.set(Array.from(uniqueFacts));
-      this.loading.set(false);
-    });
+        const uniqueFacts = new Set([...this.catFacts(), ...results.filter(fact => fact !== null)]);
+        this.catFacts.set(Array.from(uniqueFacts));
+        this.loading.set(false);
+      });
   }
 }
